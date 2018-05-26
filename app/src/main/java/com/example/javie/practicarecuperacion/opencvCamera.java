@@ -37,8 +37,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.Inflater;
+
+import static org.opencv.core.CvType.CV_8UC1;
 
 public class opencvCamera extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2{
 
@@ -88,6 +91,15 @@ public class opencvCamera extends AppCompatActivity implements CameraBridgeViewB
                             facesArray = faces.toArray();
                             String personicas = String.valueOf(facesArray.length);
                             System.out.println("Mis personicas: " + personicas);
+
+                            Bitmap icon = BitmapFactory.decodeResource(yo.getResources(), R.mipmap.hat);
+                            Mat mat2 = new Mat(100, 100, mRgba.type(), new Scalar(0,0,0));
+                            Bitmap bmp32 = icon.copy(Bitmap.Config.ARGB_8888, true);
+                            bmp32.setHeight(absoluteFaceSize);
+                            bmp32.setWidth(absoluteFaceSize);
+                            Utils.bitmapToMat(bmp32, mat2);
+                            Mat submat = mRgba.submat(0, 100, 0, 100);
+                            mat2.copyTo(submat);
 
                             Intent intent = new Intent(yo, nuevaImagen.class);
                             intent.putExtra("personas", personicas);
@@ -197,9 +209,24 @@ public class opencvCamera extends AppCompatActivity implements CameraBridgeViewB
 
             // If there are any faces found, draw a rectangle around it
             facesArray = faces.toArray();
-            System.out.println(facesArray.length);
+
             for (int i = 0; i <facesArray.length; i++){
-                Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0, 255), 3);
+                try {
+                    Bitmap icon = BitmapFactory.decodeResource(yo.getResources(), R.mipmap.hat);
+                    Mat mat2 = new Mat();
+                    Bitmap bmp32 = icon.copy(Bitmap.Config.ARGB_8888, true);
+                    Utils.bitmapToMat(bmp32, mat2);
+                    Mat mat3 = new Mat();
+                    Rect rect = new Rect(facesArray[i].x, facesArray[i].y - facesArray[i].height, facesArray[i].width, facesArray[i].height);
+                    Mat submat = mRgba.submat(rect);
+                    Imgproc.resize( mat2, mat3, facesArray[i].size());
+                    mat3.copyTo(submat);
+
+                    //Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0, 255), 3);
+                }catch (Exception e) {
+                    Log.e("OpenCVActivity", "Error loading cascade", e);
+                }
+
             }
         }
         return mRgba;

@@ -9,6 +9,7 @@
     tools:showIn="@layout/activity_main">
 
     <ListView
+        android:id="@+id/lista1"
         android:layout_width="371dp"
         android:layout_height="498dp"
         android:layout_marginBottom="8dp"
@@ -19,5 +20,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ver"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible" />
 
 </android.support.constraint.ConstraintLayout>

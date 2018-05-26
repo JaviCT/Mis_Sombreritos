@@ -2,11 +2,13 @@ package com.example.javie.practicarecuperacion;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -15,6 +17,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -65,6 +68,11 @@ public class nuevaImagen extends AppCompatActivity implements GoogleApiClient.Co
     private static Bitmap bitmap = null;
     GoogleApiClient mGoogleApiClient = null;
     private static final String TAG = "MainActivity";
+    SQLiteDatabase db;
+    String personas;
+    String formattedDate;
+    String lat;
+    String longi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,15 +92,16 @@ public class nuevaImagen extends AppCompatActivity implements GoogleApiClient.Co
         //set personas
         persona = (TextView) findViewById(R.id.textView);
         if (getIntent().hasExtra("personas")) {
-            persona.setText(persona.getText() + ": " + getIntent().getExtras().getString("personas"));
+            personas = getIntent().getExtras().getString("personas");
+            persona.setText(persona.getText() + ": " + personas);
         }
 
         //set date
         Date c = Calendar.getInstance().getTime();
         System.out.println("Current time => " + c);
 
-        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
-        String formattedDate = df.format(c);
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        formattedDate = df.format(c);
         date = (TextView) findViewById(R.id.textView2);
         date.setText(date.getText() + ": " + formattedDate);
 
@@ -121,7 +130,19 @@ public class nuevaImagen extends AppCompatActivity implements GoogleApiClient.Co
         guardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                guardar();
+                if (personas == null){
+                    Toast.makeText(yo, "Debes capturar una imagen", Toast.LENGTH_SHORT).show();
+                }else{
+                    guardar(personas, formattedDate, lat, longi);
+                    NotificationManager mNotifyMgr =(NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(yo, "test")
+                            .setSmallIcon(R.drawable.ic_launcher_background)
+                            .setContentTitle("Imagen Capturada")
+                            .setContentText(" Se han dibujado "+ personas + " sombreros.");
+                    mNotifyMgr.notify(1, mBuilder.build());
+                    Intent intent = new Intent(yo, MainActivity.class);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -162,8 +183,13 @@ public class nuevaImagen extends AppCompatActivity implements GoogleApiClient.Co
             latitud.setText(latitud.getText() + ": " + String.valueOf(mLastLocation.getLatitude()));
             longitud.setText(longitud.getText() + ": " + String.valueOf(mLastLocation.getLongitude()));
 
-            System.out.println(String.valueOf(mLastLocation.getLatitude()));
-            System.out.println(String.valueOf(mLastLocation.getLongitude()));
+            while(lat == null){
+                lat = String.valueOf(mLastLocation.getLatitude());
+                longi = String.valueOf(mLastLocation.getLongitude());
+
+                System.out.println(lat);
+                System.out.println(longi);
+            }
         }
     }
 
@@ -172,7 +198,7 @@ public class nuevaImagen extends AppCompatActivity implements GoogleApiClient.Co
         mGoogleApiClient.connect();
     }
 
-    public void guardar(){
+    public void guardar(String personas, String fecha, String latitud, String longitud){
         if (persona.getText() == "Personas"){
             Toast.makeText(yo, "Introduce una imagen", Toast.LENGTH_SHORT).show();
         }else{
@@ -198,6 +224,10 @@ public class nuevaImagen extends AppCompatActivity implements GoogleApiClient.Co
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            db = openOrCreateDatabase("practicafinal", Context.MODE_PRIVATE, null);
+            db.execSQL("Create table if not exists fotos (imagen VARCHAR, personas VARCHAR, fecha DATE, latitud VARCHAR, longitud VARCHAR);");
+            db.execSQL("Insert into fotos values ('" + path + "' , '" + personas + "' , '" + fecha + "', '" + lat + "', '" + longi + "');");
         }
     }
 
