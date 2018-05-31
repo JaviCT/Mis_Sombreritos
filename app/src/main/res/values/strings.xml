@@ -1,4 +1,28 @@
 <resources>
     <string name="app_name">practicaRecuperacion</string>
     <string name="action_settings">Settings</string>
+    <string name="activate_location">Activate Location</string>
+    <string name="sent_location">Your location is disabled, please activate it</string>
+    <string name="conf_location">Location configuration</string>
+    <string name="cancel">Cancel</string>
+    <string name="persons">Persons</string>
+    <string name="date">Date</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="share">Share</string>
+    <string name="save">Save</string>
+    <string name="choose_picture">Choose picture</string>
+    <string name="sent_picture">Select a photo from the galery or take a new picture</string>
+    <string name="camera">Camera</string>
+    <string name="galery">Galery</string>
+    <string name="not_found">Not found</string>
+    <string name="permission">There are permission</string>
+    <string name="correctly_loaded">List correctly loaded</string>
+    <string name="there_are">There are</string>
+    <string name="saved_pictures">saved pictures</string>
+    <string name="no_file">There is no file</string>
+    <string name="should_image">You should take a picture</string>
+    <string name="captured_image">Captured image</string>
+    <string name="draw_hat">hats have been drawn</string>
+    <string name="capture">Capture</string>
 </resources>

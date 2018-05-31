@@ -1,5 +1,6 @@
 package com.example.javie.practicarecuperacion;
 
+import android.support.v7.widget.ShareActionProvider;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -9,29 +10,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.os.StrictMode;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -44,20 +33,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.opencv.android.OpenCVLoader;
+import org.xmlpull.v1.XmlSerializer;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
+import java.io.FileOutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -116,6 +97,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private String writeXml(){
+        XmlSerializer serializer = Xml.newSerializer();
+        StringWriter writer = new StringWriter();
+        db = openOrCreateDatabase("practicafinal", Context.MODE_PRIVATE, null);
+        db.execSQL("Create table if not exists fotos (imagen VARCHAR, personas VARCHAR, fecha DATE, latitud VARCHAR, longitud VARCHAR);");
+        Cursor cursor= db.rawQuery("Select * from fotos;",null);
+        try {
+            serializer.setOutput(writer);
+            serializer.startDocument("UTF-8", true);
+            serializer.startTag("", "imagenes");
+
+            if(cursor.getCount() == 0){
+                System.out.println(getString(R.string.not_found));
+            }
+            else{
+                while(cursor.moveToNext()){
+                    serializer.startTag("", "imagen");
+                        serializer.startTag("", cursor.getColumnName(0));
+                        serializer.text(cursor.getString(0));
+                        serializer.endTag("", cursor.getColumnName(0));
+                        serializer.startTag("", cursor.getColumnName(1));
+                        serializer.text(cursor.getString(1));
+                        serializer.endTag("", cursor.getColumnName(1));
+                        serializer.startTag("", cursor.getColumnName(2));
+                        serializer.text(cursor.getString(2));
+                        serializer.endTag("", cursor.getColumnName(2));
+                        serializer.startTag("", cursor.getColumnName(3));
+                        serializer.text(cursor.getString(3));
+                        serializer.endTag("", cursor.getColumnName(3));
+                        serializer.startTag("", cursor.getColumnName(4));
+                        serializer.text(cursor.getString(4));
+                        serializer.endTag("", cursor.getColumnName(4));
+                    serializer.endTag("", "imagen");
+                }
+            }
+
+            serializer.endTag("", "imagenes");
+            serializer.endDocument();
+            return writer.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private boolean checkLocation() {
         if (!isLocationEnabled())
             showAlert();
@@ -124,16 +149,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void showAlert() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Activar la ubicación")
-                .setMessage("Su ubicación esta desactivada.\npor favor active su ubicación.")
-                .setPositiveButton("Configuración de ubicación", new DialogInterface.OnClickListener() {
+        dialog.setTitle(getString(R.string.activate_location))
+                .setMessage(getString(R.string.sent_location))
+                .setPositiveButton(getString(R.string.conf_location), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface paramDialogInterface, int paramInt) {
                         Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(myIntent);
                     }
                 })
-                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface paramDialogInterface, int paramInt) {
                     }
@@ -152,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
             case MY_PERMISSIONS: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    System.out.println("Hay permiso");
+                    System.out.println(getString(R.string.permission));
                 } else {
 
                 }
@@ -176,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 myList.removeAll(myList);
             }
             if(cursor.getCount() == 0){
-                System.out.println("no encontrado");
+                System.out.println(getString(R.string.not_found));
             }
             else{
                 while(cursor.moveToNext()){
@@ -209,8 +234,8 @@ public class MainActivity extends AppCompatActivity {
             NotificationManager mNotifyMgr =(NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(yo, "test")
                     .setSmallIcon(R.drawable.ic_launcher_background)
-                    .setContentTitle("Lista cargada correctamente")
-                    .setContentText("Hay "+ myList.size() + " imagenes capturadas");
+                    .setContentTitle(getString(R.string.correctly_loaded))
+                    .setContentText(getString(R.string.there_are) + " " + myList.size() + " " + getString(R.string.saved_pictures));
             mNotifyMgr.notify(1, mBuilder.build());
         }
     }
@@ -296,10 +321,10 @@ public class MainActivity extends AppCompatActivity {
             Lista lista;
             lista = this.lista.get(i);
             image.setImageURI(Uri.fromFile(new File(lista.getImage())));
-            personas.setText("Personas: " + lista.getPersonas());
-            fecha.setText("Fecha: " + lista.getFecha());
-            latitud.setText("Latitud: " + lista.getLat());
-            longitud.setText("Longitud: " + lista.getLongi());
+            personas.setText(getString(R.string.persons) + ": " + lista.getPersonas());
+            fecha.setText(getString(R.string.date) + ": " + lista.getFecha());
+            latitud.setText(getString(R.string.latitude) + ": " + lista.getLat());
+            longitud.setText(getString(R.string.longitude) + ": " + lista.getLongi());
 
             return view;
 
@@ -315,7 +340,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -328,8 +352,39 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_settings){
+            //mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build( ));
+
+            String filename = "myfile.xml";
+            String fileContents = writeXml();
+            System.out.println(fileContents);
+            String path = yo.getExternalCacheDir().toString();
+            System.out.println(path);
+
+            File file = new File(yo.getExternalCacheDir(), filename);
+
+            FileOutputStream outputStream;
+
+            try {
+                outputStream = new FileOutputStream(file);//openFileOutput(path + filename, Context.MODE_PRIVATE);
+                outputStream.write(fileContents.getBytes());
+                outputStream.flush();
+                outputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if(file.exists()) {
+                Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+                intent.setType("text/xml");
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + path + "/" + filename));
+                startActivityForResult(Intent.createChooser(intent, "Complete action using"), 101);
+            }else{
+                Toast.makeText(yo, getString(R.string.no_file), Toast.LENGTH_SHORT).show();
+            }
+
         }
 
         return super.onOptionsItemSelected(item);

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">practicaRecuperacion</string>
+    <string name="action_settings">Opciones</string>
+    <string name="activate_location">Activar Ubicación</string>
+    <string name="sent_location">Su ubicación está desactivada, por favor activela</string>
+    <string name="conf_location">Configuración de ubicación</string>
+    <string name="cancel">Cancelar</string>
+    <string name="persons">Personas</string>
+    <string name="date">Fecha</string>
+    <string name="latitude">Latitud</string>
+    <string name="longitude">Longitud</string>
+    <string name="share">Compartir</string>
+    <string name="save">Guardar</string>
+    <string name="choose_picture">Elige una foto</string>
+    <string name="sent_picture">Seleccionar foto de la galería o hacer una foto</string>
+    <string name="camera">Camara</string>
+    <string name="galery">Galería</string>
+    <string name="not_found">No encontrado</string>
+    <string name="permission">Hay permiso</string>
+    <string name="correctly_loaded">Lista cargada correctamente</string>
+    <string name="there_are">Hay</string>
+    <string name="saved_pictures">imágenes guardadas</string>
+    <string name="no_file">No hay fichero</string>
+    <string name="should_image">Debes capturar una imagen</string>
+    <string name="captured_image">Imagen capturada</string>
+    <string name="draw_hat">sombreros se han dibujado</string>
+    <string name="capture">Capturar</string>
+</resources>

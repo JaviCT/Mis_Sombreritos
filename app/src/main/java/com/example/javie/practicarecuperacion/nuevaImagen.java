@@ -131,14 +131,14 @@ public class nuevaImagen extends AppCompatActivity implements GoogleApiClient.Co
             @Override
             public void onClick(View v) {
                 if (personas == null){
-                    Toast.makeText(yo, "Debes capturar una imagen", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(yo, getString(R.string.should_image), Toast.LENGTH_SHORT).show();
                 }else{
                     guardar(personas, formattedDate, lat, longi);
                     NotificationManager mNotifyMgr =(NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
                     NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(yo, "test")
                             .setSmallIcon(R.drawable.ic_launcher_background)
-                            .setContentTitle("Imagen Capturada")
-                            .setContentText(" Se han dibujado "+ personas + " sombreros.");
+                            .setContentTitle(getString(R.string.captured_image))
+                            .setContentText(personas + getString(R.string.draw_hat));
                     mNotifyMgr.notify(1, mBuilder.build());
                     Intent intent = new Intent(yo, MainActivity.class);
                     startActivity(intent);
@@ -233,16 +233,16 @@ public class nuevaImagen extends AppCompatActivity implements GoogleApiClient.Co
 
     private void showAlert() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Elige una foto")
-                .setMessage("Seleccionar foto de la galeria \no hacer una foto.")
-                .setPositiveButton("Galeria", new DialogInterface.OnClickListener() {
+        dialog.setTitle(getString(R.string.choose_picture))
+                .setMessage(getString(R.string.sent_picture))
+                .setPositiveButton(getString(R.string.galery), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface paramDialogInterface, int paramInt) {
                         Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                         startActivityForResult(i, RESULT_LOAD_IMAGE);
                     }
                 })
-                .setNegativeButton("Camara", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.camera), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface paramDialogInterface, int paramInt) {
                         Intent intent = new Intent(yo, opencvCamera.class);
